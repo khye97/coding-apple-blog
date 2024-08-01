@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import './App.css';
 
 function App() {
-  let [title, setTitle] = useState(['남자 코트 추천', '강남 우동 맛집', '파이썬 독학']);
-  let [like, setLike] = useState([0, 0, 0]);
+  let [title, setTitle] = useState([]);
+  let [like, setLike] = useState([]);
   let [modal, setModal] = useState(false);
   let [modalTitle, setModalTitle] = useState(0);
   let [userValue, setUserValue] = useState('');
+  let [date, setDate] = useState([]);
+
+  let inputElement = useRef(null);
 
 
   function changeTitle(){
@@ -33,16 +36,39 @@ function App() {
   }
 
   function publish (){
-    let copy = [...title];
-    copy.unshift(userValue);
-    setTitle(copy);
+    if(userValue == ""){
+      alert("글을 입력하세요");
+      return;
+    } else {
+      let copy = [...title];
+      copy.unshift(userValue);
+      setTitle(copy);
+      inputElement.current.value = '';
+      setUserValue('');
+      
+      let copyLike = [...like];
+      copyLike.unshift(0);
+      setLike(copyLike);
+
+      let copyDate = [...date];
+      let today = new Date();
+      today = String(today);
+      copyDate.unshift(today);
+      setDate(copyDate);
+    }
   }
 
   function deleteText (event){
     let copy = [...title];
     let clickBtn = event.target.id;
-    copy.splice(clickBtn, 1);
+    copy.splice(clickBtn, 1); 
     setTitle(copy);
+  }
+
+  function pressEnter (event){
+    if(event.key === 'Enter'){
+      publish();
+    }
   }
 
   return (
@@ -58,17 +84,17 @@ function App() {
           <div className="list" key={index}>
             <h4 onClick={() => { setModal(!modal); setModalTitle(index) }}>{item}
             <span id={index} onClick={ (event) => {event.stopPropagation(); countLike(event); }}>❤️</span> {like[index]}</h4>
-            <p>2월 17일 발행</p>
+            <p>{date[index]}</p>
             <button id={index} onClick={(event) => {deleteText(event)}}>삭제</button>
           </div>
         )
       })}
 
-      <input type='text' onChange={(event) => {setUserValue(event.target.value)}}/>
+      <input type='text' onChange={(event) => { setUserValue(event.target.value); }} ref={inputElement} onKeyDown={(event) => {pressEnter(event)}}/>
       <button onClick={publish}>글 발행</button>
 
       {modal == true ? <Modal title={title} modalTitle={modalTitle} changeTitle={changeTitle} /> : null}
-      
+
     </div>
   );
 }
