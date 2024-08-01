@@ -5,11 +5,9 @@ function App() {
   let [title, setTitle] = useState(['남자 코트 추천', '강남 우동 맛집', '파이썬 독학']);
   let [like, setLike] = useState([0, 0, 0]);
   let [modal, setModal] = useState(false);
+  let [modalTitle, setModalTitle] = useState(0);
+  let [userValue, setUserValue] = useState('');
 
-  // function 함수 (){
-  //   setLike(like + 1);
-  //   console.log(like);
-  // }
 
   function changeTitle(){
     let copy = [...title];
@@ -34,6 +32,19 @@ function App() {
     setLike(copy);
   }
 
+  function publish (){
+    let copy = [...title];
+    copy.unshift(userValue);
+    setTitle(copy);
+  }
+
+  function deleteText (event){
+    let copy = [...title];
+    let clickBtn = event.target.id;
+    copy.splice(clickBtn, 1);
+    setTitle(copy);
+  }
+
   return (
     <div className="App">
       <div className='gray-nav'>
@@ -41,45 +52,22 @@ function App() {
       </div>
       <button onClick={sort}>가나다순 정렬</button>
       <button onClick={changeTitle}>변경</button>
-      {/*
-      <div className="list">
-        <h4>{title[0]} <span onClick={countLike}>❤️</span> {like[0]}</h4>
-        <p>2월 17일 발행</p>
-      </div>
-      <div className="list">
-        <h4>{title[1]}</h4>
-        <p>2월 17일 발행</p>
-      </div>
-      <div className="list">
-        <h4 onClick={() => { setModal(!modal)}}>{title[2]}</h4>
-        <p>2월 17일 발행</p>
-      </div>*/}
-  {/*}
-      {title.map((item, index)=> {
-        return (
-          <div className="list" key={index}>
-            <h4 onClick={() => { setModal(!modal) }}>{item}</h4>
-            <span onClick={()=> {
-              let copy = [...like];
-              copy[index] = copy[index] + 1;
-              setLike(copy);
-            }}>❤️</span> {like[index]}
-            <p>2월 17일 발행</p>
-          </div>
-        )
-      })} */}
 
       {title.map((item, index)=> {
         return (
           <div className="list" key={index}>
-            <h4 onClick={() => { setModal(!modal) }}>{item}</h4>
-            <span id={index} onClick={countLike}>❤️</span> {like[index]}
+            <h4 onClick={() => { setModal(!modal); setModalTitle(index) }}>{item}
+            <span id={index} onClick={ (event) => {event.stopPropagation(); countLike(event); }}>❤️</span> {like[index]}</h4>
             <p>2월 17일 발행</p>
+            <button id={index} onClick={(event) => {deleteText(event)}}>삭제</button>
           </div>
         )
       })}
 
-      {modal == true ? <Modal title={title} changeTitle={changeTitle} /> : null}
+      <input type='text' onChange={(event) => {setUserValue(event.target.value)}}/>
+      <button onClick={publish}>글 발행</button>
+
+      {modal == true ? <Modal title={title} modalTitle={modalTitle} changeTitle={changeTitle} /> : null}
       
     </div>
   );
@@ -88,7 +76,7 @@ function App() {
 function Modal (props){
   return (
     <div className="modal">
-      <h4>{props.title[0]}</h4>
+      <h4>{props.title[props.modalTitle]}</h4>
       <p>날짜</p>
       <p>상세 내용</p>
       <button onClick={props.changeTitle}>글 수정</button>
